@@ -1,0 +1,211 @@
+{% extends 'emails/base.html.twig' %}
+
+{% block title %}Nouvelle notification{% endblock %}
+
+{% block content %}
+<div class="email-content">
+    <div class="notification-header">
+        <h2>Bonjour {{ user.firstName }},</h2>
+    </div>
+
+    <div class="notification-message">
+        {{ message }}
+    </div>
+
+    {% if context.repair_id is defined %}
+        {% set repair = get_repair(context.repair_id) %}
+        <div class="repair-details">
+            <h3>Détails de la réparation</h3>
+            <table>
+                <tr>
+                    <th>Client :</th>
+                    <td>{{ repair.customerName }}</td>
+                </tr>
+                <tr>
+                    <th>Produit :</th>
+                    <td>{{ repair.product }}</td>
+                </tr>
+                <tr>
+                    <th>Statut :</th>
+                    <td>
+                        <span class="status-badge" style="background-color: {{ repair.status.color }}">
+                            {{ repair.status.name }}
+                        </span>
+                    </td>
+                </tr>
+                <tr>
+                    <th>Site :</th>
+                    <td>{{ repair.site.name }}</td>
+                </tr>
+                <tr>
+                    <th>Date de dépôt :</th>
+                    <td>{{ repair.depositDate|date('d/m/Y') }}</td>
+                </tr>
+            </table>
+
+            <div class="action-buttons">
+                <a href="{{ url('repair_show', {'id': repair.id}) }}" class="button">
+                    Voir la réparation
+                </a>
+            </div>
+        </div>
+    {% endif %}
+
+    <div class="notification-footer">
+        <p>
+            Cette notification a été envoyée car vous êtes inscrit aux alertes 
+            {% if user.roles|length > 1 %}
+                en tant que : 
+                {% for role in user.roles %}
+                    {% if role != 'ROLE_USER' %}
+                        {{ role|replace({'ROLE_': '', '_': ' '})|lower|capitalize }}
+                        {%- if not loop.last %}, {% endif %}
+                    {% endif %}
+                {% endfor %}
+            {% endif %}
+        </p>
+    </div>
+
+    <div class="preferences-link">
+        <p>
+            Pour gérer vos préférences de notification, 
+            <a href="{{ url('user_preferences') }}">cliquez ici</a>.
+        </p>
+    </div>
+</div>
+{% endblock %}
+
+{% block style %}
+<style>
+    .email-content {
+        font-family: Arial, sans-serif;
+        color: #333;
+        line-height: 1.6;
+    }
+
+    .notification-header {
+        margin-bottom: 20px;
+    }
+
+    .notification-header h2 {
+        color: #4f46e5;
+        margin: 0;
+    }
+
+    .notification-message {
+        background-color: #f3f4f6;
+        padding: 20px;
+        border-radius: 8px;
+        margin: 20px 0;
+        font-size: 16px;
+    }
+
+    .repair-details {
+        margin: 30px 0;
+        background: #ffffff;
+        border: 1px solid #e5e7eb;
+        border-radius: 8px;
+        padding: 20px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    }
+
+    .repair-details h3 {
+        color: #4f46e5;
+        margin-top: 0;
+        margin-bottom: 15px;
+    }
+
+    .repair-details table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .repair-details th {
+        text-align: left;
+        padding: 8px;
+        width: 30%;
+        color: #666;
+        vertical-align: top;
+    }
+
+    .repair-details td {
+        padding: 8px;
+        vertical-align: top;
+    }
+
+    .status-badge {
+        display: inline-block;
+        padding: 4px 8px;
+        border-radius: 4px;
+        color: white;
+        font-size: 12px;
+        font-weight: bold;
+    }
+
+    .action-buttons {
+        margin-top: 20px;
+        text-align: center;
+    }
+
+    .button {
+        display: inline-block;
+        padding: 12px 24px;
+        background-color: #4f46e5;
+        color: white;
+        text-decoration: none;
+        border-radius: 5px;
+        font-weight: bold;
+        margin: 10px 0;
+    }
+
+    .button:hover {
+        background-color: #4338ca;
+    }
+
+    .notification-footer {
+        margin: 30px 0;
+        padding: 15px;
+        background: #eef2ff;
+        border-radius: 8px;
+        font-size: 14px;
+        color: #666;
+    }
+
+    .preferences-link {
+        text-align: center;
+        margin-top: 20px;
+        padding-top: 20px;
+        border-top: 1px solid #e5e7eb;
+    }
+
+    .preferences-link a {
+        color: #4f46e5;
+        text-decoration: none;
+    }
+
+    .preferences-link a:hover {
+        text-decoration: underline;
+    }
+
+    @media screen and (max-width: 600px) {
+        .repair-details {
+            padding: 15px;
+        }
+
+        .repair-details th,
+        .repair-details td {
+            display: block;
+            width: 100%;
+        }
+
+        .repair-details th {
+            padding-bottom: 0;
+        }
+
+        .button {
+            display: block;
+            text-align: center;
+        }
+    }
+</style>
+{% endblock %}
