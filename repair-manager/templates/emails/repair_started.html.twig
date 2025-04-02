@@ -1,0 +1,76 @@
+{% extends 'emails/base_email.html.twig' %}
+
+{% block header %}
+    Début de votre réparation
+{% endblock %}
+
+{% block content %}
+    <h2>Bonjour {{ repair.customerName }},</h2>
+
+    <p>
+        Nous vous informons que la réparation de votre appareil vient de débuter.
+        Notre équipe de techniciens qualifiés s'occupe maintenant de votre appareil.
+    </p>
+
+    <div class="info-box">
+        <h3>Détails de votre réparation :</h3>
+        <p><strong>Numéro de référence :</strong> {{ repair.id }}</p>
+        <p><strong>Appareil :</strong> {{ repair.product }} {% if repair.color %}({{ repair.color }}){% endif %}</p>
+        <p><strong>Statut :</strong> 
+            <span class="status status-progress">
+                En cours de réparation
+            </span>
+        </p>
+        <p><strong>Date de début :</strong> {{ "now"|date("d/m/Y") }}</p>
+    </div>
+
+    <div style="background-color: #dbeafe; padding: 15px; border-radius: 5px; margin: 20px 0;">
+        <h3 style="color: #1e40af; margin-top: 0;">Ce que vous devez savoir :</h3>
+        <ul style="color: #1e40af;">
+            <li>Nous vous tiendrons informé de l'avancement de la réparation</li>
+            <li>Vous recevrez une notification dès que la réparation sera terminée</li>
+            <li>Vous pouvez suivre l'état de votre réparation en temps réel via notre portail client</li>
+        </ul>
+    </div>
+
+    <p>
+        Pour suivre l'évolution de votre réparation en temps réel, cliquez sur le bouton ci-dessous :
+    </p>
+
+    <p style="text-align: center;">
+        <a href="{{ tracking_url }}" class="button">
+            Suivre ma réparation
+        </a>
+    </p>
+
+    <div style="margin-top: 30px;">
+        <p><strong>Rappel de vos informations :</strong></p>
+        <ul>
+            <li>Numéro de téléphone : {{ repair.phone }}</li>
+            <li>Email : {{ repair.customerEmail }}</li>
+            <li>Date de dépôt : {{ repair.depositDate|date('d/m/Y') }}</li>
+            {% if repair.accessories|length > 0 %}
+                <li>Accessoires déposés :
+                    <ul>
+                        {% for accessory in repair.accessories %}
+                            <li>{{ accessory }}</li>
+                        {% endfor %}
+                    </ul>
+                </li>
+            {% endif %}
+        </ul>
+    </div>
+
+    <div style="margin-top: 30px; padding: 15px; background-color: #f3f4f6; border-radius: 5px;">
+        <h4 style="margin-top: 0;">Besoin d'aide ?</h4>
+        <p>
+            Notre équipe est à votre disposition pour répondre à vos questions.<br>
+            N'hésitez pas à nous contacter en précisant votre numéro de référence.
+        </p>
+    </div>
+
+    <div style="text-align: center; margin-top: 30px;">
+        <p style="font-weight: bold;">Merci de votre confiance !</p>
+        <p>L'équipe Repair Manager</p>
+    </div>
+{% endblock %}
