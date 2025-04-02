@@ -1,0 +1,26 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Détails du Statut{% endblock %}
+
+{% block body %}
+    <div class="container mx-auto px-4 py-8">
+        <h1 class="text-2xl font-bold mb-6">Détails du Statut</h1>
+
+        <div class="bg-white shadow rounded-lg p-6 mb-6">
+            <div class="mb-4">
+                <span class="font-semibold">Nom :</span> {{ status.name }}
+            </div>
+            
+            <div class="flex space-x-4">
+                <a href="{{ path('app_status_edit', {'id': status.id}) }}" 
+                   class="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700 transition">
+                    Modifier
+                </a>
+                <a href="{{ path('app_status_index') }}" 
+                   class="bg-gray-600 text-white px-4 py-2 rounded hover:bg-gray-700 transition">
+                    Retour à la liste
+                </a>
+            </div>
+        </div>
+    </div>
+{% endblock %}
