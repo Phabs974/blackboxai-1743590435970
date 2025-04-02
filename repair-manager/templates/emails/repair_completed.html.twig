@@ -1,0 +1,298 @@
+{% extends 'emails/base.html.twig' %}
+
+{% block title %}Votre réparation est terminée{% endblock %}
+
+{% block content %}
+<div class="email-content">
+    <div class="completion-banner">
+        <img src="{{ absolute_url(asset('images/completion-check.png')) }}" alt="Réparation terminée" class="completion-icon">
+        <h2>Votre réparation est terminée !</h2>
+    </div>
+
+    <div class="alert alert-success">
+        <p>
+            Bonne nouvelle {{ repair.customerName }}, votre {{ repair.product }} est prêt à être récupéré !
+        </p>
+    </div>
+
+    <div class="repair-summary">
+        <h3>Récapitulatif de la réparation</h3>
+        <table>
+            <tr>
+                <th>Numéro de suivi :</th>
+                <td>{{ repair.trackingToken }}</td>
+            </tr>
+            <tr>
+                <th>Produit :</th>
+                <td>{{ repair.product }}</td>
+            </tr>
+            <tr>
+                <th>Date de dépôt :</th>
+                <td>{{ repair.depositDate|date('d/m/Y') }}</td>
+            </tr>
+            <tr>
+                <th>Date de fin :</th>
+                <td>{{ repair.updatedAt|date('d/m/Y') }}</td>
+            </tr>
+        </table>
+    </div>
+
+    <div class="pickup-info">
+        <h3>Point de retrait</h3>
+        <div class="site-card">
+            <div class="site-details">
+                <h4>{{ repair.site.name }}</h4>
+                <p>{{ repair.site.address }}</p>
+                <p>{{ repair.site.postalCode }} {{ repair.site.city }}</p>
+                {% if repair.site.phone %}
+                    <p>
+                        <i class="fas fa-phone"></i>
+                        <a href="tel:{{ repair.site.phone }}">{{ repair.site.phone }}</a>
+                    </p>
+                {% endif %}
+            </div>
+
+            <div class="business-hours">
+                <h4>Horaires d'ouverture</h4>
+                <table>
+                    {% for day, hours in repair.site.businessHours %}
+                        <tr class="{{ "now"|date('l')|lower == day ? 'current-day' : '' }}">
+                            <th>{{ day|capitalize }}</th>
+                            <td>
+                                {% if hours is empty %}
+                                    Fermé
+                                {% else %}
+                                    {{ hours|join(' et ') }}
+                                {% endif %}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="important-notes">
+        <h3>Informations importantes</h3>
+        <ul>
+            <li>Merci de vous munir d'une pièce d'identité lors du retrait</li>
+            <li>Le règlement s'effectue au moment du retrait</li>
+            <li>Moyens de paiement acceptés : CB, espèces</li>
+        </ul>
+    </div>
+
+    <div class="qr-section">
+        <p>Pour accélérer la récupération, présentez ce QR code à l'accueil :</p>
+        <div class="qr-code">
+            <img src="{{ absolute_url(repair.qrCode) }}" alt="QR Code de suivi">
+        </div>
+    </div>
+
+    <div class="satisfaction-survey">
+        <h3>Votre avis compte !</h3>
+        <p>Une fois votre appareil récupéré, n'hésitez pas à nous faire part de votre expérience :</p>
+        <a href="{{ url('repair_feedback', {'token': repair.trackingToken}) }}" class="button">
+            Donner mon avis
+        </a>
+    </div>
+
+    <div class="contact-support">
+        <p>Une question ? Besoin d'aide ?</p>
+        <p>Notre équipe est à votre disposition :</p>
+        <ul>
+            <li>Par téléphone : {{ repair.site.phone }}</li>
+            <li>Par email : {{ repair.site.email }}</li>
+        </ul>
+    </div>
+
+    <p class="thank-you">
+        Merci de votre confiance !<br>
+        L'équipe {{ repair.site.name }}
+    </p>
+</div>
+{% endblock %}
+
+{% block style %}
+<style>
+    .email-content {
+        font-family: Arial, sans-serif;
+        color: #333;
+        line-height: 1.6;
+    }
+
+    .completion-banner {
+        text-align: center;
+        margin: 20px 0;
+        padding: 20px;
+        background: #dcfce7;
+        border-radius: 10px;
+    }
+
+    .completion-icon {
+        width: 64px;
+        height: 64px;
+        margin-bottom: 10px;
+    }
+
+    .completion-banner h2 {
+        color: #166534;
+        margin: 0;
+    }
+
+    .repair-summary {
+        margin: 20px 0;
+        background: #f8fafc;
+        padding: 20px;
+        border-radius: 8px;
+    }
+
+    .repair-summary h3 {
+        color: #4f46e5;
+        margin-top: 0;
+    }
+
+    .repair-summary table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .repair-summary th {
+        text-align: left;
+        padding: 8px;
+        width: 40%;
+        color: #666;
+    }
+
+    .repair-summary td {
+        padding: 8px;
+    }
+
+    .pickup-info {
+        margin: 30px 0;
+    }
+
+    .site-card {
+        background: #ffffff;
+        border: 1px solid #e5e7eb;
+        border-radius: 8px;
+        padding: 20px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    }
+
+    .site-details {
+        margin-bottom: 20px;
+    }
+
+    .site-details h4 {
+        color: #4f46e5;
+        margin: 0 0 10px 0;
+    }
+
+    .site-details p {
+        margin: 5px 0;
+    }
+
+    .business-hours table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .business-hours th {
+        text-align: left;
+        padding: 5px;
+        width: 30%;
+        color: #666;
+    }
+
+    .business-hours td {
+        padding: 5px;
+    }
+
+    .current-day {
+        background-color: #f0fdf4;
+        font-weight: bold;
+    }
+
+    .important-notes {
+        margin: 20px 0;
+        padding: 15px;
+        background: #fef3c7;
+        border-radius: 8px;
+    }
+
+    .important-notes h3 {
+        color: #92400e;
+        margin-top: 0;
+    }
+
+    .important-notes ul {
+        margin: 0;
+        padding-left: 20px;
+    }
+
+    .qr-section {
+        text-align: center;
+        margin: 30px 0;
+    }
+
+    .qr-code img {
+        max-width: 200px;
+        margin: 10px 0;
+    }
+
+    .satisfaction-survey {
+        text-align: center;
+        margin: 30px 0;
+        padding: 20px;
+        background: #eef2ff;
+        border-radius: 8px;
+    }
+
+    .contact-support {
+        margin: 20px 0;
+        padding: 15px;
+        background: #f8fafc;
+        border-radius: 8px;
+    }
+
+    .contact-support ul {
+        list-style-type: none;
+        padding-left: 0;
+    }
+
+    .contact-support li {
+        margin: 5px 0;
+    }
+
+    .thank-you {
+        text-align: center;
+        margin-top: 30px;
+        color: #666;
+        font-style: italic;
+    }
+
+    .button {
+        display: inline-block;
+        padding: 12px 24px;
+        background-color: #4f46e5;
+        color: white;
+        text-decoration: none;
+        border-radius: 5px;
+        font-weight: bold;
+        margin: 10px 0;
+    }
+
+    .button:hover {
+        background-color: #4338ca;
+    }
+
+    a {
+        color: #4f46e5;
+        text-decoration: none;
+    }
+
+    a:hover {
+        text-decoration: underline;
+    }
+</style>
+{% endblock %}
