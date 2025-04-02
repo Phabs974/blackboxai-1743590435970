@@ -1,0 +1,112 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Détails du Log{% endblock %}
+
+{% block body %}
+<div class="container mx-auto px-4 py-8">
+    <div class="mb-6 flex justify-between items-center">
+        <h1 class="text-3xl font-bold">Détails du Log #{{ log.id }}</h1>
+        <a href="{{ path('audit_log_index') }}" 
+           class="bg-gray-200 hover:bg-gray-300 px-4 py-2 rounded">
+            Retour à la liste
+        </a>
+    </div>
+
+    <div class="bg-white shadow-lg rounded-lg overflow-hidden">
+        <div class="p-6">
+            <div class="grid grid-cols-2 gap-6">
+                <div class="space-y-4">
+                    <div>
+                        <h3 class="text-sm font-medium text-gray-500">Date</h3>
+                        <p class="mt-1 text-sm text-gray-900">
+                            {{ log.actionDate|date('Y-m-d H:i:s') }}
+                        </p>
+                    </div>
+
+                    <div>
+                        <h3 class="text-sm font-medium text-gray-500">Type d'Entité</h3>
+                        <p class="mt-1 text-sm text-gray-900">
+                            {{ log.entityType }}
+                        </p>
+                    </div>
+
+                    <div>
+                        <h3 class="text-sm font-medium text-gray-500">ID de l'Entité</h3>
+                        <p class="mt-1 text-sm text-gray-900">
+                            {{ log.entityId }}
+                        </p>
+                    </div>
+
+                    <div>
+                        <h3 class="text-sm font-medium text-gray-500">Action</h3>
+                        <p class="mt-1 text-sm text-gray-900">
+                            {{ log.action }}
+                        </p>
+                    </div>
+
+                    <div>
+                        <h3 class="text-sm font-medium text-gray-500">Utilisateur</h3>
+                        <p class="mt-1 text-sm text-gray-900">
+                            {{ log.user ? log.user.email : 'Système' }}
+                        </p>
+                    </div>
+                </div>
+
+                <div class="space-y-6">
+                    {% if log.oldValue %}
+                        <div>
+                            <h3 class="text-sm font-medium text-gray-500">Anciennes Valeurs</h3>
+                            <div class="mt-2 bg-gray-50 p-4 rounded-lg">
+                                <pre class="text-sm text-gray-900 whitespace-pre-wrap">{{ log.oldValue|json_encode(constant('JSON_PRETTY_PRINT')) }}</pre>
+                            </div>
+                        </div>
+                    {% endif %}
+
+                    {% if log.newValue %}
+                        <div>
+                            <h3 class="text-sm font-medium text-gray-500">Nouvelles Valeurs</h3>
+                            <div class="mt-2 bg-gray-50 p-4 rounded-lg">
+                                <pre class="text-sm text-gray-900 whitespace-pre-wrap">{{ log.newValue|json_encode(constant('JSON_PRETTY_PRINT')) }}</pre>
+                            </div>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% if log.oldValue and log.newValue %}
+        <div class="mt-8">
+            <h2 class="text-xl font-semibold mb-4">Comparaison des Changements</h2>
+            <div class="bg-white shadow-lg rounded-lg overflow-hidden">
+                <div class="p-6">
+                    <table class="min-w-full">
+                        <thead class="bg-gray-100">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Champ</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ancienne Valeur</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nouvelle Valeur</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200">
+                            {% for field, oldVal in log.oldValue %}
+                                <tr class="hover:bg-gray-50">
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                                        {{ field }}
+                                    </td>
+                                    <td class="px-6 py-4 text-sm text-red-600">
+                                        {{ oldVal|json_encode }}
+                                    </td>
+                                    <td class="px-6 py-4 text-sm text-green-600">
+                                        {{ log.newValue[field]|json_encode }}
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}
