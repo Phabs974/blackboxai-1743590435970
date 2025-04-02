@@ -1,0 +1,32 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Modifier l'Utilisateur{% endblock %}
+
+{% block body %}
+    <div class="container mx-auto px-4 py-8">
+        <h1 class="text-2xl font-bold mb-6">Modifier l'Utilisateur</h1>
+
+        {{ form_start(form) }}
+            <div class="bg-white shadow rounded-lg p-6 mb-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {{ form_row(form.email) }}
+                    {{ form_row(form.plainPassword, {
+                        label: 'Nouveau mot de passe (laisser vide si inchangé)'
+                    }) }}
+                    {{ form_row(form.firstName) }}
+                    {{ form_row(form.lastName) }}
+                    {{ form_row(form.roles) }}
+                </div>
+                
+                <div class="flex space-x-4 mt-6">
+                    <button type="submit" class="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700 transition">
+                        <i class="fas fa-save mr-2"></i>Enregistrer
+                    </button>
+                    <a href="{{ path('app_user_index') }}" class="bg-gray-600 text-white px-4 py-2 rounded hover:bg-gray-700 transition">
+                        <i class="fas fa-times mr-2"></i>Annuler
+                    </a>
+                </div>
+            </div>
+        {{ form_end(form) }}
+    </div>
+{% endblock %}
