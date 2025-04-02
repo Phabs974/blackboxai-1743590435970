@@ -1,0 +1,176 @@
+{% extends 'emails/base.html.twig' %}
+
+{% block title %}Votre réparation a été enregistrée{% endblock %}
+
+{% block content %}
+<div class="email-content">
+    <h2>Bonjour {{ repair.customerName }},</h2>
+
+    <p>Nous avons bien enregistré votre demande de réparation avec les informations suivantes :</p>
+
+    <div class="repair-details">
+        <table>
+            <tr>
+                <th>Numéro de suivi :</th>
+                <td>{{ repair.trackingToken }}</td>
+            </tr>
+            <tr>
+                <th>Produit :</th>
+                <td>{{ repair.product }}</td>
+            </tr>
+            <tr>
+                <th>Site de dépôt :</th>
+                <td>{{ repair.site.name }}</td>
+            </tr>
+            <tr>
+                <th>Date de dépôt :</th>
+                <td>{{ repair.depositDate|date('d/m/Y') }}</td>
+            </tr>
+        </table>
+    </div>
+
+    <div class="tracking-info">
+        <p>Pour suivre l'état de votre réparation, vous pouvez :</p>
+        <ul>
+            <li>Scanner le QR code ci-dessous</li>
+            <li>Ou visiter directement le lien : <a href="{{ url('repair_tracking', {'token': repair.trackingToken}) }}">Suivre ma réparation</a></li>
+        </ul>
+    </div>
+
+    <div class="qr-code">
+        <img src="{{ absolute_url(repair.qrCode) }}" alt="QR Code de suivi">
+    </div>
+
+    <div class="contact-info">
+        <p>Pour toute question, n'hésitez pas à nous contacter :</p>
+        <ul>
+            <li>Téléphone : {{ repair.site.phone }}</li>
+            <li>Email : {{ repair.site.email }}</li>
+            <li>Adresse : {{ repair.site.fullAddress }}</li>
+        </ul>
+    </div>
+
+    <div class="business-hours">
+        <h3>Horaires d'ouverture :</h3>
+        <table>
+            {% for day, hours in repair.site.businessHours %}
+                <tr>
+                    <th>{{ day|capitalize }}</th>
+                    <td>
+                        {% if hours is empty %}
+                            Fermé
+                        {% else %}
+                            {{ hours|join(' et ') }}
+                        {% endif %}
+                    </td>
+                </tr>
+            {% endfor %}
+        </table>
+    </div>
+
+    <p class="footer-note">
+        Merci de votre confiance !<br>
+        L'équipe {{ repair.site.name }}
+    </p>
+</div>
+{% endblock %}
+
+{% block style %}
+<style>
+    .email-content {
+        font-family: Arial, sans-serif;
+        color: #333;
+        line-height: 1.6;
+    }
+
+    .repair-details {
+        margin: 20px 0;
+        background: #f5f5f5;
+        padding: 15px;
+        border-radius: 5px;
+    }
+
+    .repair-details table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .repair-details th {
+        text-align: left;
+        padding: 8px;
+        width: 40%;
+    }
+
+    .repair-details td {
+        padding: 8px;
+    }
+
+    .tracking-info {
+        margin: 20px 0;
+    }
+
+    .tracking-info ul {
+        list-style-type: none;
+        padding-left: 0;
+    }
+
+    .tracking-info li {
+        margin: 10px 0;
+    }
+
+    .qr-code {
+        text-align: center;
+        margin: 30px 0;
+    }
+
+    .qr-code img {
+        max-width: 200px;
+    }
+
+    .contact-info {
+        background: #eef2ff;
+        padding: 15px;
+        border-radius: 5px;
+        margin: 20px 0;
+    }
+
+    .contact-info ul {
+        list-style-type: none;
+        padding-left: 0;
+    }
+
+    .business-hours {
+        margin: 20px 0;
+    }
+
+    .business-hours table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .business-hours th {
+        text-align: left;
+        padding: 5px;
+        width: 30%;
+    }
+
+    .business-hours td {
+        padding: 5px;
+    }
+
+    .footer-note {
+        margin-top: 30px;
+        text-align: center;
+        color: #666;
+    }
+
+    a {
+        color: #4f46e5;
+        text-decoration: none;
+    }
+
+    a:hover {
+        text-decoration: underline;
+    }
+</style>
+{% endblock %}
