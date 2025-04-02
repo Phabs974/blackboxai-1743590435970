@@ -1,0 +1,95 @@
+{% extends 'emails/base_email.html.twig' %}
+
+{% block header %}
+    Votre appareil est prêt à être récupéré !
+{% endblock %}
+
+{% block content %}
+    <h2>Bonjour {{ repair.customerName }},</h2>
+
+    <p>
+        Bonne nouvelle ! Votre appareil est maintenant prêt à être récupéré dans notre magasin.
+    </p>
+
+    <div class="info-box">
+        <h3>Détails de votre réparation :</h3>
+        <p><strong>Numéro de référence :</strong> {{ repair.id }}</p>
+        <p><strong>Appareil :</strong> {{ repair.product }} {% if repair.color %}({{ repair.color }}){% endif %}</p>
+        <p><strong>Statut :</strong> 
+            <span class="status status-ready">
+                Prêt à récupérer
+            </span>
+        </p>
+        <p><strong>Disponible depuis :</strong> {{ "now"|date("d/m/Y") }}</p>
+    </div>
+
+    <div style="background-color: #f0fdf4; padding: 20px; border-radius: 5px; margin: 20px 0; border-left: 4px solid #166534;">
+        <h3 style="color: #166534; margin-top: 0;">Important - À apporter :</h3>
+        <ul style="color: #166534;">
+            <li>Une pièce d'identité</li>
+            <li>Ce mail ou votre numéro de référence</li>
+            <li>Le moyen de paiement pour régler la réparation</li>
+        </ul>
+    </div>
+
+    <div style="margin: 30px 0; text-align: center; background-color: #f3f4f6; padding: 20px; border-radius: 5px;">
+        <h3 style="margin-top: 0;">Nos horaires d'ouverture</h3>
+        <p style="font-size: 16px;">
+            <strong>Lundi - Vendredi :</strong> 9h00 - 18h00<br>
+            <strong>Samedi :</strong> 9h00 - 12h00<br>
+            <strong>Dimanche :</strong> Fermé
+        </p>
+        <p style="font-size: 14px; color: #666; margin-top: 10px;">
+            Adresse : [Votre adresse]
+        </p>
+    </div>
+
+    <p>
+        Pour consulter les détails de votre réparation, cliquez ci-dessous :
+    </p>
+
+    <p style="text-align: center;">
+        <a href="{{ tracking_url }}" class="button">
+            Voir les détails
+        </a>
+    </p>
+
+    <div style="margin-top: 30px;">
+        <p><strong>Rappel de vos informations :</strong></p>
+        <ul>
+            <li>Numéro de téléphone : {{ repair.phone }}</li>
+            <li>Email : {{ repair.customerEmail }}</li>
+            <li>Date de dépôt : {{ repair.depositDate|date('d/m/Y') }}</li>
+            {% if repair.accessories|length > 0 %}
+                <li>Accessoires à récupérer :
+                    <ul>
+                        {% for accessory in repair.accessories %}
+                            <li>{{ accessory }}</li>
+                        {% endfor %}
+                    </ul>
+                </li>
+            {% endif %}
+        </ul>
+    </div>
+
+    <div style="background-color: #fef3c7; padding: 15px; border-radius: 5px; margin-top: 30px;">
+        <p style="color: #92400e; margin: 0;">
+            <strong>Note :</strong> Pour votre sécurité et celle de votre appareil, nous ne pouvons remettre 
+            l'appareil qu'à son propriétaire ou à une personne disposant d'une procuration signée et d'une 
+            copie de votre pièce d'identité.
+        </p>
+    </div>
+
+    <div style="margin-top: 30px; padding: 15px; background-color: #f3f4f6; border-radius: 5px;">
+        <h4 style="margin-top: 0;">Des questions ?</h4>
+        <p>
+            Notre équipe reste à votre disposition pour toute question.<br>
+            N'hésitez pas à nous contacter en précisant votre numéro de référence.
+        </p>
+    </div>
+
+    <div style="text-align: center; margin-top: 30px;">
+        <p style="font-weight: bold;">Merci de votre confiance !</p>
+        <p>L'équipe Repair Manager</p>
+    </div>
+{% endblock %}
