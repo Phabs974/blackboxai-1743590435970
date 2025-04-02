@@ -1,0 +1,37 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Détails de l'Utilisateur{% endblock %}
+
+{% block body %}
+    <div class="container mx-auto px-4 py-8">
+        <h1 class="text-2xl font-bold mb-6">Détails de l'Utilisateur</h1>
+
+        <div class="bg-white shadow rounded-lg p-6 mb-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <span class="font-semibold">Email :</span> {{ user.email }}
+                </div>
+                <div>
+                    <span class="font-semibold">Rôles :</span> {{ user.roles|join(', ') }}
+                </div>
+                <div>
+                    <span class="font-semibold">Prénom :</span> {{ user.firstName }}
+                </div>
+                <div>
+                    <span class="font-semibold">Nom :</span> {{ user.lastName }}
+                </div>
+            </div>
+            
+            <div class="flex space-x-4 mt-6">
+                <a href="{{ path('app_user_edit', {'id': user.id}) }}" 
+                   class="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700 transition">
+                    Modifier
+                </a>
+                <a href="{{ path('app_user_index') }}" 
+                   class="bg-gray-600 text-white px-4 py-2 rounded hover:bg-gray-700 transition">
+                    Retour à la liste
+                </a>
+            </div>
+        </div>
+    </div>
+{% endblock %}
