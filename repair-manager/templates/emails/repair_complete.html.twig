@@ -1,0 +1,71 @@
+{% extends 'emails/base_email.html.twig' %}
+
+{% block header %}
+    Votre réparation est terminée !
+{% endblock %}
+
+{% block content %}
+    <h2>Bonjour {{ repair.customerName }},</h2>
+
+    <p>
+        Nous avons le plaisir de vous informer que la réparation de votre appareil est maintenant terminée !
+    </p>
+
+    <div class="info-box">
+        <h3>Détails de votre réparation :</h3>
+        <p><strong>Numéro de référence :</strong> {{ repair.id }}</p>
+        <p><strong>Appareil :</strong> {{ repair.product }} {% if repair.color %}({{ repair.color }}){% endif %}</p>
+        <p><strong>Statut :</strong> 
+            <span class="status status-completed">
+                Réparation terminée
+            </span>
+        </p>
+        <p><strong>Date de fin :</strong> {{ "now"|date("d/m/Y") }}</p>
+    </div>
+
+    <div style="background-color: #dcfce7; padding: 15px; border-radius: 5px; margin: 20px 0;">
+        <h3 style="color: #166534; margin-top: 0;">Prochaines étapes :</h3>
+        <ol style="color: #166534;">
+            <li>Vous pouvez venir récupérer votre appareil à notre magasin</li>
+            <li>N'oubliez pas d'apporter une pièce d'identité</li>
+            <li>Le règlement se fera au moment de la récupération</li>
+        </ol>
+    </div>
+
+    <div style="margin: 30px 0; text-align: center;">
+        <p style="font-size: 18px; font-weight: bold;">Nos horaires d'ouverture :</p>
+        <p>
+            Lundi - Vendredi : 9h00 - 18h00<br>
+            Samedi : 9h00 - 12h00
+        </p>
+    </div>
+
+    <p>
+        Pour suivre l'état de votre réparation ou consulter les détails, cliquez ci-dessous :
+    </p>
+
+    <p style="text-align: center;">
+        <a href="{{ tracking_url }}" class="button">
+            Voir les détails
+        </a>
+    </p>
+
+    <div style="margin-top: 30px;">
+        <p><strong>Rappel de vos informations :</strong></p>
+        <ul>
+            <li>Numéro de téléphone : {{ repair.phone }}</li>
+            <li>Email : {{ repair.customerEmail }}</li>
+            <li>Date de dépôt : {{ repair.depositDate|date('d/m/Y') }}</li>
+        </ul>
+    </div>
+
+    <p style="margin-top: 30px; font-style: italic;">
+        Si vous avez des questions ou besoin d'informations supplémentaires, 
+        n'hésitez pas à nous contacter en précisant votre numéro de référence.
+    </p>
+
+    <div style="text-align: center; margin-top: 30px;">
+        <p style="font-weight: bold;">Merci de votre confiance !</p>
+        <p>L'équipe Repair Manager</p>
+    </div>
+{% endblock %}
