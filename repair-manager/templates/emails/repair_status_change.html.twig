@@ -1,0 +1,50 @@
+{% extends 'emails/base_email.html.twig' %}
+
+{% block header %}
+    Mise à jour de votre réparation
+{% endblock %}
+
+{% block content %}
+    <h2>Bonjour {{ repair.customerName }},</h2>
+
+    <p>Nous vous informons que le statut de votre réparation a été mis à jour.</p>
+
+    <div class="info-box">
+        <h3>Détails de votre réparation :</h3>
+        <p><strong>Numéro de référence :</strong> {{ repair.id }}</p>
+        <p><strong>Appareil :</strong> {{ repair.product }} {% if repair.color %}({{ repair.color }}){% endif %}</p>
+        <p><strong>Nouveau statut :</strong> 
+            <span class="status status-{{ repair.status.name|lower }}">
+                {{ repair.status.name }}
+            </span>
+        </p>
+    </div>
+
+    {% if repair.status.description %}
+        <p><em>{{ repair.status.description }}</em></p>
+    {% endif %}
+
+    <p>
+        Pour suivre l'évolution de votre réparation en temps réel, cliquez sur le bouton ci-dessous :
+    </p>
+
+    <p style="text-align: center;">
+        <a href="{{ tracking_url }}" class="button">
+            Suivre ma réparation
+        </a>
+    </p>
+
+    <p>
+        Si vous avez des questions concernant votre réparation, n'hésitez pas à nous contacter 
+        en précisant votre numéro de référence.
+    </p>
+
+    <div style="margin-top: 30px;">
+        <p><strong>Rappel de vos informations :</strong></p>
+        <ul>
+            <li>Numéro de téléphone : {{ repair.phone }}</li>
+            <li>Email : {{ repair.customerEmail }}</li>
+            <li>Date de dépôt : {{ repair.depositDate|date('d/m/Y') }}</li>
+        </ul>
+    </div>
+{% endblock %}
