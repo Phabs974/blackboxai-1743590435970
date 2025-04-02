@@ -1,0 +1,197 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ repair.id ? 'Modifier' : 'Nouvelle' }} Réparation{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+{% endblock %}
+
+{% block body %}
+<div class="min-h-screen bg-gray-100">
+    <!-- En-tête -->
+    <header class="bg-white shadow">
+        <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center">
+                <a href="{{ path('repair_index') }}" class="mr-4 text-gray-500 hover:text-gray-700">
+                    <i class="fas fa-arrow-left"></i>
+                </a>
+                <h1 class="text-3xl font-bold text-gray-900">
+                    {{ repair.id ? 'Modifier la réparation' : 'Nouvelle réparation' }}
+                </h1>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+        <!-- Formulaire -->
+        <div class="bg-white shadow overflow-hidden sm:rounded-lg">
+            {{ form_start(form, {'attr': {'class': 'space-y-6 p-6'}}) }}
+                <div class="md:grid md:grid-cols-2 md:gap-6">
+                    <!-- Informations client -->
+                    <div class="space-y-4">
+                        <h3 class="text-lg font-medium text-gray-900">Informations client</h3>
+                        
+                        <div>
+                            {{ form_label(form.customerName, 'Nom du client', {'label_attr': {'class': 'block text-sm font-medium text-gray-700'}}) }}
+                            {{ form_widget(form.customerName, {'attr': {'class': 'mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md'}}) }}
+                            {{ form_errors(form.customerName) }}
+                        </div>
+
+                        <div>
+                            {{ form_label(form.phone, 'Téléphone', {'label_attr': {'class': 'block text-sm font-medium text-gray-700'}}) }}
+                            {{ form_widget(form.phone, {'attr': {'class': 'mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md'}}) }}
+                            {{ form_errors(form.phone) }}
+                        </div>
+
+                        <div>
+                            {{ form_label(form.email, 'Email', {'label_attr': {'class': 'block text-sm font-medium text-gray-700'}}) }}
+                            {{ form_widget(form.email, {'attr': {'class': 'mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md'}}) }}
+                            {{ form_errors(form.email) }}
+                        </div>
+                    </div>
+
+                    <!-- Informations produit -->
+                    <div class="space-y-4 mt-6 md:mt-0">
+                        <h3 class="text-lg font-medium text-gray-900">Informations produit</h3>
+                        
+                        <div>
+                            {{ form_label(form.product, 'Produit', {'label_attr': {'class': 'block text-sm font-medium text-gray-700'}}) }}
+                            {{ form_widget(form.product, {'attr': {'class': 'mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md'}}) }}
+                            {{ form_errors(form.product) }}
+                        </div>
+
+                        <div>
+                            {{ form_label(form.color, 'Couleur', {'label_attr': {'class': 'block text-sm font-medium text-gray-700'}}) }}
+                            {{ form_widget(form.color, {'attr': {'class': 'mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md'}}) }}
+                            {{ form_errors(form.color) }}
+                        </div>
+
+                        <div>
+                            {{ form_label(form.serialNumber, 'Numéro de série', {'label_attr': {'class': 'block text-sm font-medium text-gray-700'}}) }}
+                            {{ form_widget(form.serialNumber, {'attr': {'class': 'mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md'}}) }}
+                            {{ form_errors(form.serialNumber) }}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- État et accessoires -->
+                <div class="mt-6 border-t border-gray-200 pt-6">
+                    <div class="space-y-4">
+                        <h3 class="text-lg font-medium text-gray-900">État et accessoires</h3>
+
+                        <div>
+                            {{ form_label(form.deviceCondition, 'État général', {'label_attr': {'class': 'block text-sm font-medium text-gray-700'}}) }}
+                            {{ form_widget(form.deviceCondition, {'attr': {'class': 'mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md', 'rows': '3'}}) }}
+                            {{ form_errors(form.deviceCondition) }}
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div>
+                                {{ form_label(form.hasCable, 'Câble fourni', {'label_attr': {'class': 'block text-sm font-medium text-gray-700'}}) }}
+                                {{ form_widget(form.hasCable, {'attr': {'class': 'mt-1 focus:ring-indigo-500 focus:border-indigo-500 block shadow-sm sm:text-sm border-gray-300 rounded-md'}}) }}
+                            </div>
+
+                            <div>
+                                {{ form_label(form.hasController, 'Manette fournie', {'label_attr': {'class': 'block text-sm font-medium text-gray-700'}}) }}
+                                {{ form_widget(form.hasController, {'attr': {'class': 'mt-1 focus:ring-indigo-500 focus:border-indigo-500 block shadow-sm sm:text-sm border-gray-300 rounded-md'}}) }}
+                            </div>
+
+                            <div>
+                                {{ form_label(form.priority, 'Prioritaire', {'label_attr': {'class': 'block text-sm font-medium text-gray-700'}}) }}
+                                {{ form_widget(form.priority, {'attr': {'class': 'mt-1 focus:ring-indigo-500 focus:border-indigo-500 block shadow-sm sm:text-sm border-gray-300 rounded-md'}}) }}
+                            </div>
+                        </div>
+
+                        <div>
+                            {{ form_label(form.accessories, 'Accessoires fournis', {'label_attr': {'class': 'block text-sm font-medium text-gray-700'}}) }}
+                            <div class="mt-1" id="accessories-container">
+                                {% for accessoryField in form.accessories %}
+                                    <div class="flex items-center space-x-2 mb-2">
+                                        {{ form_widget(accessoryField, {'attr': {'class': 'focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md'}}) }}
+                                        <button type="button" class="remove-accessory text-red-600 hover:text-red-800">
+                                            <i class="fas fa-times"></i>
+                                        </button>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                            <button type="button" id="add-accessory" 
+                                    class="mt-2 inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-full shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                                <i class="fas fa-plus mr-1"></i>
+                                Ajouter un accessoire
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Statut et site -->
+                <div class="mt-6 border-t border-gray-200 pt-6">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            {{ form_label(form.status, 'Statut', {'label_attr': {'class': 'block text-sm font-medium text-gray-700'}}) }}
+                            {{ form_widget(form.status, {'attr': {'class': 'mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md'}}) }}
+                            {{ form_errors(form.status) }}
+                        </div>
+
+                        <div>
+                            {{ form_label(form.site, 'Site', {'label_attr': {'class': 'block text-sm font-medium text-gray-700'}}) }}
+                            {{ form_widget(form.site, {'attr': {'class': 'mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md'}}) }}
+                            {{ form_errors(form.site) }}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Boutons -->
+                <div class="mt-6 border-t border-gray-200 pt-6 flex justify-between">
+                    <a href="{{ path('repair_index') }}" 
+                       class="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                        Annuler
+                    </a>
+                    <button type="submit" 
+                            class="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                        {{ repair.id ? 'Mettre à jour' : 'Créer' }}
+                    </button>
+                </div>
+
+            {{ form_end(form) }}
+        </div>
+    </main>
+</div>
+
+{% block javascripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const container = document.getElementById('accessories-container');
+    const addButton = document.getElementById('add-accessory');
+    let accessoryCount = container.children.length;
+
+    // Ajouter un champ d'accessoire
+    addButton.addEventListener('click', function() {
+        const prototype = container.dataset.prototype;
+        const newField = prototype.replace(/__name__/g, accessoryCount);
+        const wrapper = document.createElement('div');
+        wrapper.className = 'flex items-center space-x-2 mb-2';
+        wrapper.innerHTML = newField;
+        
+        const removeButton = document.createElement('button');
+        removeButton.type = 'button';
+        removeButton.className = 'remove-accessory text-red-600 hover:text-red-800';
+        removeButton.innerHTML = '<i class="fas fa-times"></i>';
+        wrapper.appendChild(removeButton);
+        
+        container.appendChild(wrapper);
+        accessoryCount++;
+    });
+
+    // Supprimer un champ d'accessoire
+    container.addEventListener('click', function(e) {
+        if (e.target.closest('.remove-accessory')) {
+            e.target.closest('.flex').remove();
+        }
+    });
+});
+</script>
+{% endblock %}
+
+{% endblock %}
