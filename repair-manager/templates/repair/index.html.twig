@@ -2,223 +2,211 @@
 
 {% block title %}Gestion des Réparations{% endblock %}
 
-{% block stylesheets %}
-    {{ parent() }}
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-{% endblock %}
-
 {% block body %}
-<div class="min-h-screen bg-gray-100">
-    <!-- En-tête -->
-    <header class="bg-white shadow">
-        <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between items-center">
-                <h1 class="text-3xl font-bold text-gray-900">
-                    Gestion des Réparations
-                </h1>
-                <a href="{{ path('repair_new') }}" class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-                    <i class="fas fa-plus mr-2"></i>
-                    Nouvelle Réparation
+<div class="container mx-auto px-4 py-6">
+    {# En-tête avec statistiques #}
+    <div class="bg-white rounded-lg shadow-sm p-6 mb-6">
+        <div class="flex justify-between items-center mb-6">
+            <h1 class="text-2xl font-bold text-gray-900">
+                <i class="fas fa-tools mr-2"></i>Gestion des Réparations
+            </h1>
+            <a href="{{ path('repair_new') }}" class="inline-flex items-center px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700">
+                <i class="fas fa-plus mr-2"></i>Nouvelle Réparation
+            </a>
+        </div>
+
+        {# Statistiques rapides #}
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div class="bg-blue-50 p-4 rounded-lg">
+                <div class="text-blue-800 text-sm font-medium">En cours</div>
+                <div class="text-2xl font-bold text-blue-900">{{ repairs.getTotalItemCount }}</div>
+            </div>
+            <div class="bg-yellow-50 p-4 rounded-lg">
+                <div class="text-yellow-800 text-sm font-medium">En retard</div>
+                <div class="text-2xl font-bold text-yellow-900">{{ overdueCount|default(0) }}</div>
+            </div>
+            <div class="bg-green-50 p-4 rounded-lg">
+                <div class="text-green-800 text-sm font-medium">Délai moyen</div>
+                <div class="text-2xl font-bold text-green-900">{{ averageTime|default('N/A') }}</div>
+            </div>
+            <div class="bg-purple-50 p-4 rounded-lg">
+                <div class="text-purple-800 text-sm font-medium">Prioritaires</div>
+                <div class="text-2xl font-bold text-purple-900">{{ priorityCount|default(0) }}</div>
+            </div>
+        </div>
+    </div>
+
+    {# Filtres de recherche #}
+    <div class="bg-white rounded-lg shadow-sm p-6 mb-6">
+        <form method="GET" class="space-y-4">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                {# Recherche globale #}
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Recherche</label>
+                    <input type="text" name="search" value="{{ filters.search|default('') }}" 
+                           class="form-input rounded-md shadow-sm w-full" 
+                           placeholder="Nom, téléphone, email...">
+                </div>
+
+                {# Filtre par statut #}
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Statut</label>
+                    <select name="status" class="form-select rounded-md shadow-sm w-full">
+                        <option value="">Tous les statuts</option>
+                        {% for status in statuses %}
+                            <option value="{{ status.id }}" {{ filters.status == status.id ? 'selected' }}>
+                                {{ status.name }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                {# Filtre par site #}
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Site</label>
+                    <select name="site" class="form-select rounded-md shadow-sm w-full">
+                        <option value="">Tous les sites</option>
+                        {% for site in sites %}
+                            <option value="{{ site.id }}" {{ filters.site == site.id ? 'selected' }}>
+                                {{ site.name }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                {# Filtre par priorité #}
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Priorité</label>
+                    <select name="priority" class="form-select rounded-md shadow-sm w-full">
+                        <option value="">Toutes</option>
+                        <option value="1" {{ filters.priority == '1' ? 'selected' }}>Prioritaire</option>
+                        <option value="0" {{ filters.priority == '0' ? 'selected' }}>Normal</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                {# Filtre par date #}
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Date de début</label>
+                    <input type="date" name="dateFrom" value="{{ filters.dateFrom|default('') }}" 
+                           class="form-input rounded-md shadow-sm w-full">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Date de fin</label>
+                    <input type="date" name="dateTo" value="{{ filters.dateTo|default('') }}" 
+                           class="form-input rounded-md shadow-sm w-full">
+                </div>
+                <div class="flex items-end">
+                    <label class="inline-flex items-center">
+                        <input type="checkbox" name="overdue" value="1" 
+                               {{ filters.overdue ? 'checked' }} 
+                               class="form-checkbox h-4 w-4 text-indigo-600">
+                        <span class="ml-2 text-sm text-gray-700">Afficher uniquement les réparations en retard</span>
+                    </label>
+                </div>
+            </div>
+
+            <div class="flex justify-end space-x-3">
+                <a href="{{ path('repair_index') }}" 
+                   class="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                    <i class="fas fa-undo mr-2"></i>Réinitialiser
                 </a>
+                <button type="submit" 
+                        class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700">
+                    <i class="fas fa-search mr-2"></i>Rechercher
+                </button>
             </div>
-        </div>
-    </header>
+        </form>
+    </div>
 
-    <main class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
-        <!-- Filtres -->
-        <div class="bg-white shadow rounded-lg mb-6 p-4">
-            <form method="GET" class="space-y-4">
-                <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-                    <div>
-                        <label for="search" class="block text-sm font-medium text-gray-700">Recherche</label>
-                        <input type="text" name="search" id="search" value="{{ filters.search|default('') }}" 
-                               class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"
-                               placeholder="Nom, téléphone, n° série...">
-                    </div>
-                    <div>
-                        <label for="status" class="block text-sm font-medium text-gray-700">Statut</label>
-                        <select name="status" id="status" class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
-                            <option value="">Tous les statuts</option>
-                            {% for status in statuses %}
-                                <option value="{{ status.id }}" {{ filters.status == status.id ? 'selected' : '' }}>
-                                    {{ status.name }}
-                                </option>
-                            {% endfor %}
-                        </select>
-                    </div>
-                    <div>
-                        <label for="site" class="block text-sm font-medium text-gray-700">Site</label>
-                        <select name="site" id="site" class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
-                            <option value="">Tous les sites</option>
-                            {% for site in sites %}
-                                <option value="{{ site.id }}" {{ filters.site == site.id ? 'selected' : '' }}>
-                                    {{ site.name }}
-                                </option>
-                            {% endfor %}
-                        </select>
-                    </div>
-                    <div>
-                        <label for="priority" class="block text-sm font-medium text-gray-700">Priorité</label>
-                        <select name="priority" id="priority" class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
-                            <option value="">Toutes les priorités</option>
-                            <option value="1" {{ filters.priority == '1' ? 'selected' : '' }}>Prioritaire</option>
-                            <option value="0" {{ filters.priority == '0' ? 'selected' : '' }}>Normal</option>
-                        </select>
-                    </div>
-                </div>
-                <div class="flex justify-end space-x-3">
-                    <button type="reset" class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-                        <i class="fas fa-undo mr-2"></i>
-                        Réinitialiser
-                    </button>
-                    <button type="submit" class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-                        <i class="fas fa-search mr-2"></i>
-                        Filtrer
-                    </button>
-                </div>
-            </form>
-        </div>
-
-        <!-- Liste des réparations -->
-        <div class="bg-white shadow overflow-hidden sm:rounded-lg">
-            <table class="min-w-full divide-y divide-gray-200">
-                <thead class="bg-gray-50">
-                    <tr>
-                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            Priorité
-                        </th>
-                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            Client
-                        </th>
-                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            Produit
-                        </th>
-                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            Site
-                        </th>
-                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            Statut
-                        </th>
-                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            Date de dépôt
-                        </th>
-                        <th scope="col" class="relative px-6 py-3">
-                            <span class="sr-only">Actions</span>
-                        </th>
-                    </tr>
-                </thead>
-                <tbody class="bg-white divide-y divide-gray-200">
-                    {% for repair in repairs %}
-                        <tr class="hover:bg-gray-50">
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <button onclick="togglePriority({{ repair.id }})" 
-                                        class="priority-toggle {{ repair.priority ? 'text-red-600' : 'text-gray-400' }} hover:text-red-700">
-                                    <i class="fas fa-star"></i>
-                                </button>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <div class="text-sm font-medium text-gray-900">{{ repair.customerName }}</div>
-                                <div class="text-sm text-gray-500">{{ repair.phone }}</div>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <div class="text-sm text-gray-900">{{ repair.product }}</div>
-                                <div class="text-sm text-gray-500">{{ repair.serialNumber }}</div>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <div class="text-sm text-gray-900">{{ repair.site.name }}</div>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
-                                    {% if repair.status.name == 'En attente' %}
-                                        bg-yellow-100 text-yellow-800
-                                    {% elseif repair.status.name == 'En cours' %}
-                                        bg-blue-100 text-blue-800
-                                    {% elseif repair.status.name == 'Terminé' %}
-                                        bg-green-100 text-green-800
-                                    {% else %}
-                                        bg-gray-100 text-gray-800
-                                    {% endif %}">
-                                    {{ repair.status.name }}
-                                </span>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                {{ repair.depositDate|date('d/m/Y') }}
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                <div class="flex justify-end space-x-2">
-                                    <a href="{{ path('repair_show', {'id': repair.id}) }}" 
-                                       class="text-indigo-600 hover:text-indigo-900">
-                                        <i class="fas fa-eye"></i>
-                                    </a>
-                                    <a href="{{ path('repair_edit', {'id': repair.id}) }}" 
-                                       class="text-yellow-600 hover:text-yellow-900">
-                                        <i class="fas fa-edit"></i>
-                                    </a>
-                                    {% if is_granted('ROLE_ADMIN') %}
-                                        <form method="post" action="{{ path('repair_delete', {'id': repair.id}) }}" 
-                                              onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cette réparation ?');" 
-                                              style="display: inline-block;">
-                                            <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ repair.id) }}">
-                                            <button type="submit" class="text-red-600 hover:text-red-900">
-                                                <i class="fas fa-trash"></i>
-                                            </button>
-                                        </form>
-                                    {% endif %}
+    {# Liste des réparations #}
+    <div class="bg-white rounded-lg shadow-sm overflow-hidden">
+        <table class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-gray-50">
+                <tr>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Client</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Produit</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Statut</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Site</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date dépôt</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200">
+                {% for repair in repairs %}
+                    <tr class="{{ repair.priority ? 'bg-red-50' : '' }} hover:bg-gray-50">
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                            {{ repair.id }}
+                            {% if repair.priority %}
+                                <i class="fas fa-exclamation-circle text-red-500 ml-1" title="Prioritaire"></i>
+                            {% endif %}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                            <div>{{ repair.customerName }}</div>
+                            <div class="text-gray-500 text-xs">{{ repair.phone }}</div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                            <div>{{ repair.product }}</div>
+                            <div class="text-gray-500 text-xs">{{ repair.serialNumber }}</div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
+                                       {{ repair.status.name == 'Terminé' ? 'bg-green-100 text-green-800' : 
+                                          repair.status.name == 'En cours' ? 'bg-blue-100 text-blue-800' : 
+                                          'bg-gray-100 text-gray-800' }}">
+                                {{ repair.status.name }}
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                            {{ repair.site.name }}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                            {{ repair.depositDate|date('d/m/Y') }}
+                            {% if repair.estimatedCompletionDate %}
+                                <div class="text-gray-500 text-xs">
+                                    Estimation: {{ repair.estimatedCompletionDate|date('d/m/Y') }}
                                 </div>
-                            </td>
-                        </tr>
-                    {% else %}
-                        <tr>
-                            <td colspan="7" class="px-6 py-4 text-center text-gray-500">
-                                Aucune réparation trouvée
-                            </td>
-                        </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-            
-            <!-- Pagination -->
-            <div class="bg-white px-4 py-3 border-t border-gray-200 sm:px-6">
-                {{ knp_pagination_render(repairs) }}
-            </div>
+                            {% endif %}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                            <div class="flex space-x-2">
+                                <a href="{{ path('repair_show', {'id': repair.id}) }}" 
+                                   class="text-indigo-600 hover:text-indigo-900" title="Voir">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                                <a href="{{ path('repair_edit', {'id': repair.id}) }}" 
+                                   class="text-blue-600 hover:text-blue-900" title="Modifier">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                {% if is_granted('ROLE_ADMIN') %}
+                                    <form method="post" action="{{ path('repair_delete', {'id': repair.id}) }}" 
+                                          onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cette réparation ?');" 
+                                          style="display: inline-block;">
+                                        <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ repair.id) }}">
+                                        <button type="submit" class="text-red-600 hover:text-red-900" title="Supprimer">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </form>
+                                {% endif %}
+                            </div>
+                        </td>
+                    </tr>
+                {% else %}
+                    <tr>
+                        <td colspan="7" class="px-6 py-4 text-center text-gray-500">
+                            Aucune réparation trouvée
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        {# Pagination #}
+        <div class="bg-white px-4 py-3 border-t border-gray-200 sm:px-6">
+            {{ knp_pagination_render(repairs) }}
         </div>
-    </main>
+    </div>
 </div>
-
-{% block javascripts %}
-<script>
-function togglePriority(repairId) {
-    fetch(`/repair/${repairId}/priority`, {
-        method: 'POST',
-        headers: {
-            'X-Requested-With': 'XMLHttpRequest',
-            'Content-Type': 'application/json'
-        },
-        credentials: 'same-origin'
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            const button = document.querySelector(`button[onclick="togglePriority(${repairId})"]`);
-            if (data.priority) {
-                button.classList.remove('text-gray-400');
-                button.classList.add('text-red-600');
-            } else {
-                button.classList.remove('text-red-600');
-                button.classList.add('text-gray-400');
-            }
-        }
-    })
-    .catch(error => console.error('Erreur:', error));
-}
-
-// Réinitialisation des filtres
-document.querySelector('button[type="reset"]').addEventListener('click', function(e) {
-    e.preventDefault();
-    window.location.href = '{{ path('repair_index') }}';
-});
-</script>
-{% endblock %}
-
 {% endblock %}
