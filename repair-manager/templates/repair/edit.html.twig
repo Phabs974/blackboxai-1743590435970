@@ -1,0 +1,23 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Modifier Réparation #{{ repair.id }}{% endblock %}
+
+{% block body %}
+<div class="py-6">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="bg-white shadow overflow-hidden sm:rounded-lg">
+            <div class="px-4 py-5 sm:px-6 border-b border-gray-200">
+                <h3 class="text-lg leading-6 font-medium text-gray-900">
+                    Modifier la réparation #{{ repair.id }}
+                </h3>
+                <p class="mt-1 max-w-2xl text-sm text-gray-500">
+                    {{ repair.product }} - {{ repair.customerName }}
+                </p>
+            </div>
+            <div class="px-4 py-5 sm:p-6">
+                {% include 'repair/_form.html.twig' %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
