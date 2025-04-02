@@ -1,0 +1,26 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Nouveau Statut{% endblock %}
+
+{% block body %}
+    <div class="container mx-auto px-4 py-8">
+        <h1 class="text-2xl font-bold mb-6">Créer un nouveau Statut</h1>
+
+        {{ form_start(form) }}
+            <div class="bg-white shadow rounded-lg p-6 mb-6">
+                {{ form_row(form.name) }}
+                
+                <div class="flex space-x-4 mt-6">
+                    <button type="submit" 
+                            class="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700 transition">
+                        Créer
+                    </button>
+                    <a href="{{ path('app_status_index') }}" 
+                       class="bg-gray-600 text-white px-4 py-2 rounded hover:bg-gray-700 transition">
+                        Annuler
+                    </a>
+                </div>
+            </div>
+        {{ form_end(form) }}
+    </div>
+{% endblock %}
