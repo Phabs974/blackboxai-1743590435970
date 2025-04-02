@@ -1,0 +1,133 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Logs d'Audit{% endblock %}
+
+{% block body %}
+<div class="container mx-auto px-4 py-8">
+    <h1 class="text-3xl font-bold mb-6">Logs d'Audit</h1>
+
+    {# Sélecteur de type de logs #}
+    <div class="mb-6 flex space-x-4">
+        <a href="{{ path('audit_log_index', {type: 'db'}) }}" 
+           class="px-4 py-2 rounded {{ type == 'db' ? 'bg-blue-600 text-white' : 'bg-gray-200' }}">
+            Logs Base de données
+        </a>
+        <a href="{{ path('audit_log_index', {type: 'file'}) }}" 
+           class="px-4 py-2 rounded {{ type == 'file' ? 'bg-blue-600 text-white' : 'bg-gray-200' }}">
+            Logs Fichiers
+        </a>
+    </div>
+
+    {% if type == 'file' %}
+        {# Sélecteur de fichier de log #}
+        <div class="mb-6">
+            <select id="logFile" class="form-select rounded border p-2" 
+                    onchange="window.location.href='{{ path('audit_log_index') }}?type=file&log_file=' + this.value">
+                {% for file in log_files %}
+                    <option value="{{ file }}" {{ file == current_log_file ? 'selected' : '' }}>
+                        {{ file }}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+
+        {# Affichage des logs fichier #}
+        <div class="bg-white shadow-lg rounded-lg overflow-hidden">
+            <div class="overflow-x-auto">
+                <table class="min-w-full">
+                    <thead class="bg-gray-100">
+                        <tr>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Niveau</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Message</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Contexte</th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200">
+                        {% for log in file_logs %}
+                            <tr class="hover:bg-gray-50">
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                    {{ log.datetime|date('Y-m-d H:i:s') }}
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
+                                        {% if log.level_name == 'ERROR' %}
+                                            bg-red-100 text-red-800
+                                        {% elseif log.level_name == 'WARNING' %}
+                                            bg-yellow-100 text-yellow-800
+                                        {% else %}
+                                            bg-green-100 text-green-800
+                                        {% endif %}">
+                                        {{ log.level_name }}
+                                    </span>
+                                </td>
+                                <td class="px-6 py-4 text-sm text-gray-900">{{ log.message }}</td>
+                                <td class="px-6 py-4 text-sm text-gray-500">
+                                    <pre class="whitespace-pre-wrap">{{ log.context|json_encode(constant('JSON_PRETTY_PRINT')) }}</pre>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    {% else %}
+        {# Affichage des logs base de données #}
+        <div class="bg-white shadow-lg rounded-lg overflow-hidden">
+            <div class="overflow-x-auto">
+                <table class="min-w-full">
+                    <thead class="bg-gray-100">
+                        <tr>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Entité</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Action</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Utilisateur</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200">
+                        {% for log in db_logs %}
+                            <tr class="hover:bg-gray-50">
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                    {{ log.actionDate|date('Y-m-d H:i:s') }}
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                    {{ log.entityType }}
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                    {{ log.action }}
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                    {{ log.user ? log.user.email : 'Système' }}
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                    <a href="{{ path('audit_log_show', {'id': log.id}) }}" 
+                                       class="text-indigo-600 hover:text-indigo-900">
+                                        Détails
+                                    </a>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        {# Pagination #}
+        <div class="mt-4 flex justify-between">
+            {% if current_page > 1 %}
+                <a href="{{ path('audit_log_index', {page: current_page - 1}) }}" 
+                   class="bg-gray-200 hover:bg-gray-300 px-4 py-2 rounded">
+                    Précédent
+                </a>
+            {% endif %}
+            {% if db_logs|length >= 50 %}
+                <a href="{{ path('audit_log_index', {page: current_page + 1}) }}" 
+                   class="bg-gray-200 hover:bg-gray-300 px-4 py-2 rounded">
+                    Suivant
+                </a>
+            {% endif %}
+        </div>
+    {% endif %}
+</div>
+{% endblock %}
