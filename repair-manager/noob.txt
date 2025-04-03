@@ -1,0 +1,166 @@
+Guide du débutant - Repair Manager
+=================================
+
+Structure des dossiers
+---------------------
+
+/bin/
+- Contient les exécutables et scripts
+- console : Outil en ligne de commande pour Symfony
+- phpunit : Pour les tests automatisés
+- install.sh : Script d'installation
+- setup-postgres-cluster.sh : Configuration de la base de données
+- update-db.sh : Mise à jour de la base de données
+
+/config/
+- Configuration de l'application
+- bundles.php : Liste des packages Symfony activés
+- routes.yaml : Configuration des URLs
+- services.yaml : Configuration des services
+- /packages/ : Configuration détaillée des composants (base de données, sécurité, etc.)
+
+/migrations/
+- Scripts de mise à jour de la base de données
+- Chaque fichier représente une version de la structure de la base
+- Permet de mettre à jour la base de données de manière sécurisée
+
+/public/
+- Point d'entrée de l'application (index.php)
+- Contient les fichiers accessibles publiquement
+- /uploads/ : Stockage des QR codes et codes-barres générés
+
+/src/
+- Code source principal de l'application
+
+  /Command/
+  - Scripts exécutables en ligne de commande
+  - BackupDatabaseCommand.php : Sauvegarde de la base
+  - CheckRepairDeadlinesCommand.php : Vérification des délais
+  - CreateAdminUserCommand.php : Création d'administrateurs
+
+  /Controller/
+  - Gère les requêtes HTTP et renvoie les réponses
+  - RepairController.php : Gestion des réparations
+  - StatusController.php : Gestion des statuts
+  - UserController.php : Gestion des utilisateurs
+
+  /Entity/
+  - Définition des objets métier
+  - Repair.php : Structure d'une réparation
+  - User.php : Structure d'un utilisateur
+  - Status.php : Structure d'un statut
+
+  /Form/
+  - Définition des formulaires
+  - RepairType.php : Formulaire de réparation
+  - UserType.php : Formulaire utilisateur
+
+  /Repository/
+  - Gestion des requêtes à la base de données
+  - RepairRepository.php : Requêtes liées aux réparations
+  - UserRepository.php : Requêtes liées aux utilisateurs
+
+  /Service/
+  - Logique métier de l'application
+  - NotificationService.php : Gestion des emails
+  - RepairDeadlineService.php : Gestion des délais
+  - BarcodeService.php : Génération des codes
+
+/templates/
+- Fichiers de présentation (interface utilisateur)
+- base.html.twig : Template principal
+- /repair/ : Templates des pages de réparation
+- /emails/ : Templates des emails
+
+/translations/
+- Fichiers de traduction pour différentes langues
+
+/var/
+- Fichiers temporaires (cache, logs)
+
+Fichiers principaux
+------------------
+
+.env : Configuration de l'environnement
+composer.json : Dépendances PHP
+symfony.lock : Versions des packages installés
+
+Fonctionnement technique
+-----------------------
+
+1. Traitement d'une requête
+   - L'utilisateur accède à une URL (ex: /repair)
+   - Le routeur (config/routes.yaml) dirige vers le bon contrôleur
+   - Le contrôleur (ex: RepairController) traite la requête
+   - Le template correspondant (templates/repair/) affiche la page
+
+2. Création d'une réparation
+   - Formulaire défini dans RepairType.php
+   - Données validées et transformées en objet Repair
+   - Objet sauvegardé via RepairRepository
+   - Notifications envoyées via NotificationService
+   - Codes générés via BarcodeService
+
+3. Système de délais
+   - CheckRepairDeadlinesCommand vérifie régulièrement les délais
+   - RepairDeadlineService calcule les dates estimées
+   - Notifications automatiques en cas de retard
+
+4. Sécurité
+   - Authentification gérée par SecurityController
+   - Rôles définis dans security.yaml
+   - Permissions vérifiées dans les contrôleurs
+
+Base de données
+--------------
+
+Tables principales :
+- repair : Réparations
+- user : Utilisateurs
+- status : Statuts possibles
+- site : Sites de réparation
+- repair_history : Historique des modifications
+
+Commandes utiles
+---------------
+
+# Installation
+composer install
+php bin/console doctrine:database:create
+php bin/console doctrine:migrations:migrate
+
+# Création d'un admin
+php bin/console app:create-admin-user
+
+# Vérification des délais
+php bin/console app:repair:check-deadlines
+
+# Maintenance des logs
+php bin/console app:logs:maintain
+
+Workflow typique
+---------------
+
+1. Client dépose un appareil
+   - Création d'une réparation
+   - Génération des codes
+   - Email de confirmation
+
+2. Technicien traite la réparation
+   - Mise à jour du statut
+   - Ajout de notes techniques
+   - Notifications automatiques
+
+3. Réparation terminée
+   - Changement de statut
+   - Email au client
+   - Archivage dans l'historique
+
+Astuces
+-------
+
+- Les statuts sont personnalisables via l'interface admin
+- Les délais s'ajustent automatiquement selon la charge
+- L'historique conserve toutes les modifications
+- Les emails utilisent des templates personnalisables
+- Les codes QR/barres permettent un suivi rapide
